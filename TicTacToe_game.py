@@ -1,7 +1,16 @@
+# 开启剪枝，第一步下中间
+# 第一步计算时间:0.032944440841674805
+# 递归次数:2522
+# 不开启剪枝，第一步下中间
+# 第一步计算时间:0.842475414276123
+# 递归次数:55505
+from time import *
+
+count_d = 0  # 效率计数
+is_alpha = 1  # 是否开启alpha-beta剪枝
 
 
 class TicTacToe:
-
     def __init__(self):
         self.cell_num = 3  # 格子数
         self.g_map = [[0 for y in range(self.cell_num)] for x in range(self.cell_num)]
@@ -58,15 +67,22 @@ class TicTacToe:
 
     # 电脑下棋：-1
     def ai_move(self):
+        # 测试用时
+        begin_time = time()
+        # 最大最小搜索
         self.maxmin_search(9-self.cur_step)
+        end_time = time()
+        run_time = end_time - begin_time
+        print(run_time)
+        # 打印递归次数
+        global count_d
+        print(count_d)
+
         self.player = 1  # 下次人类下棋
         self.g_map[self.best_loc[0]][self.best_loc[1]] = -1
         self.cur_step += 1
         self.chess.append((self.best_loc[0], self.best_loc[1], 2))
         return self.best_loc[0], self.best_loc[1]
-
-        # self.full = 1
-        # return -1, -1  # 满了
 
     def logic(self):
         pass
@@ -125,7 +141,9 @@ class TicTacToe:
         man_value = self.each_value(1)
         return ai_value + man_value
 
-    def maxmin_search(self, depth):
+    def maxmin_search(self, depth, bro_best_value=999):
+        global count_d
+        count_d += 1
         if -1 == self.game_result() or 1 == self.game_result():
             return self.Evaluate()
         if depth == 0:
@@ -138,14 +156,19 @@ class TicTacToe:
         left_loc = self.legal_loc()
         for loc in left_loc:
             self.move_piece(loc)
-            value = self.maxmin_search(depth-1)
+            value = self.maxmin_search(depth-1, best_value)
             self.remove_piece(loc)
             if self.player == 1:
+                # 剪枝
+                if value <= bro_best_value and is_alpha:
+                    return bro_best_value
                 if value < best_value:
                     best_value = value
                     if depth == 9-self.cur_step:
                         self.best_loc = loc
             elif self.player == -1:
+                if value >= bro_best_value and is_alpha:
+                    return bro_best_value
                 if value > best_value:
                     best_value = value
                     if depth == 9 - self.cur_step:

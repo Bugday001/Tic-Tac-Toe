@@ -92,6 +92,7 @@ def main():
         ch = 0
         # 人类下棋
         man_move()
+        refresh_board()
         an = g.game_result()
         if an == 0 and ch:
             xa, ya = g.ai_move()
