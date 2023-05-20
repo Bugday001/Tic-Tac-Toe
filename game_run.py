@@ -1,4 +1,4 @@
-from TicTacToe_game import TicTacToe
+from TicTacToe_alpha_beta import alpha_ai
 import sys
 import pygame
 from pygame.locals import *
@@ -105,5 +105,5 @@ def main():
 
 
 if __name__ == "__main__":
-    g = TicTacToe()  # 初始化
+    g = alpha_ai()  # 初始化
     main()
