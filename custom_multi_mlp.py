@@ -8,7 +8,7 @@ import numpy as np
 from TicTacToe_game import TicGame
 
 class TicEnv(gym.Env):
-    def __init__(self, seed=0, board_size=3, silent_mode=True, limit_step=True, isTrain=True, agent2=None):
+    def __init__(self, seed=0, board_size=3, silent_mode=True, limit_step=True, isTrain=True):
         super().__init__()
         self.game = TicGame(seed=seed, board_size=board_size, silent_mode=silent_mode)
         self.game.reset()
@@ -26,11 +26,6 @@ class TicEnv(gym.Env):
         # # self.max_growth = self.grid_size - self.init_snake_size
         self.isTrain = isTrain
         self.done = False
-        self.isRandom = True
-        if agent2 != None:
-            self.p2 = agent2
-            self.isRandom = False
-
 
         if limit_step:
             self.step_limit = self.grid_size ** 2 / 2 + 1 # More than enough steps to get the food.
@@ -47,24 +42,14 @@ class TicEnv(gym.Env):
         obs = self._generate_observation()
         return obs
     
-    def step(self, action):
-        self.done, info = self.game.step([action//3, action%3]) # info = {"snake_size": int, "snake_head_pos": np.array, "prev_snake_head_pos": np.array, "food_pos": np.array, "food_obtained": bool}
+    def step(self, actions):
+        self.done, info = self.game.step([actions[0]//3, actions[0]%3]) # info = {"snake_size": int, "snake_head_pos": np.array, "prev_snake_head_pos": np.array, "food_pos": np.array, "food_obtained": bool}
         obs = self._generate_observation()
         if self.done == 0 and self.isTrain:
-            if self.isRandom:
-                # get the valid actions as a boolean array
-                valid_actions = np.array([self.game._check_action_validity(a) for a in range(self.action_space.n)])
-                # get the indices of the valid actions
-                valid_indices = np.where(valid_actions)[0]
-                # randomly choose one of the valid indices
-                action = np.random.choice(valid_indices)
-            else:
-                # 另一个ai
-                action, _ = self.p2.predict(obs, action_masks=self.get_action_mask())
-            self.done, info = self.game.step([action//3, action%3])
+            self.done, info = self.game.step([actions[1]//3, actions[1]%3])
             obs = self._generate_observation()
 
-        reward = 0.0
+        rewards = np.array([0, 0])
         self.reward_step_counter += 1
 
         if self.reward_step_counter > self.step_limit: # Step limit reached, game over.
@@ -72,14 +57,14 @@ class TicEnv(gym.Env):
             self.done = 2
         
         if self.done == -1:
-            reward = 10
+            rewards = np.array([10, -10])
         elif self.done == 1:
-            reward = -10
+            rewards = np.array([-10, 10])
         else:
-            reward = 0
+            rewards = np.array([0, 0])
 
-        reward = reward * 0.1 # Scale reward
-        return obs, reward, self.done, info
+        rewards = rewards * 0.1 # Scale reward
+        return obs, rewards, self.done, info
     
     def render(self):
         self.game.render()
@@ -90,7 +75,6 @@ class TicEnv(gym.Env):
     def _generate_observation(self):
         obs = self.game.g_map
         return obs
-
 
 # Test the environment using random actions
 # NUM_EPISODES = 100

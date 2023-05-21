@@ -8,7 +8,6 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame
 from pygame import mixer
 from pygame.locals import *
-
 from TicTacToe_alpha_beta import alpha_ai
 
 white = (255, 255, 255)
@@ -40,7 +39,7 @@ class TicGame:
     def reset(self):
         self.g_map = np.zeros((self.cell_num, self.cell_num), dtype=np.int8)
         self.chess = []
-        self.player = -1
+        self.player = 1
         self.full = 0
         self.cur_step = 0  # 步数
 
@@ -97,7 +96,22 @@ class TicGame:
         if not (0 in self.g_map):
             return 2
         return 0
-
+    
+    # def game_result(self):
+    #     position = [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]]
+    #     win = ((0, 1, 2), (3, 4, 5), (6, 7, 8),
+    #             (0, 3, 6), (1, 4, 7), (2, 5, 8),
+    #             (0, 4, 8), (2, 4, 6))
+    #     for line in win:
+    #         m1,n1 = position[line[0]][0],position[line[0]][1]
+    #         m2,n2 = position[line[1]][0],position[line[1]][1]
+    #         m3,n3 = position[line[2]][0],position[line[2]][1]
+    #         if self.g_map[m1][n1] == self.g_map[m2][n2] == self.g_map[m3][n3] == -1:
+    #             return -1
+    #         elif self.g_map[m1][n1] == self.g_map[m2][n2] == self.g_map[m3][n3] == 1:
+    #             return 1
+    #     return 0
+    
     # 绘制出棋子位置
     def refresh_board(self):
         self.result = self.game_result()
@@ -130,7 +144,7 @@ class TicGame:
             self.screen.blit(text1, self.font_position[0])
             self.screen.blit(text2, self.font_position[1])
 
-        elif self.cur_step == 10:
+        elif self.cur_step == 9:
             text1 = self.font1.render("Stalemate!", True, white)
             text2 = self.font2.render("RETRY", True, white)
             self.screen.blit(text1, (self.font_position[0][0]+10, self.font_position[0][1]))
@@ -167,8 +181,6 @@ class TicGame:
         pygame.display.flip()
 
 
-        
-
 if __name__ == "__main__":
     import time
 
@@ -182,11 +194,11 @@ if __name__ == "__main__":
         # 人类下棋
         game.render()
         game.result = game.game_result()
-        # if game.result == 0 and game.player==-1:
-        #     x, y = ai.ai_move(game.g_map)
-        #     print(x, y)
-        #     game.step([x, y])
-        #     game.player = 1
+        if game.result == 0 and game.player==-1:
+            [x, y], _ = ai.ai_move(game.g_map.copy())
+            print("x, y", x, y)
+            game.step([x, y])
+            game.player = 1
         # 判断结果
         game.result = game.game_result()
         # 刷新棋盘

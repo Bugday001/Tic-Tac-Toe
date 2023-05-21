@@ -4,6 +4,7 @@ import random
 from sb3_contrib import MaskablePPO
 
 from custom_wrapper_mlp import TicEnv
+from TicTacToe_alpha_beta import alpha_ai
 
 MODEL_PATH = r"trained_models_mlp/ppo_snake_187500_steps"
 
@@ -42,17 +43,21 @@ for episode in range(NUM_EPISODE):
 
     retry_limit = 9
     print(f"=================== Episode {episode + 1} ==================")
-
+    alpha = alpha_ai()
     step_counter = 0
     while not done:
-        if env.game.player == -1:
+        if env.game.player == 1:
             action, _ = model.predict(obs, action_masks=env.get_action_mask())
 
             num_step += 1
 
             obs, reward, done, info = env.step(action)
             
-
+        elif env.game.player == -1:
+            x, y = alpha.ai_move(env.game.g_map)
+            print(x, y)
+            env.game.step([x, y])
+            env.game.player = 1
         if RENDER:
             env.render()
             time.sleep(FRAME_DELAY)

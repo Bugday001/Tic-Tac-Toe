@@ -13,7 +13,8 @@ from custom_wrapper_mlp import TicEnv
 NUM_ENV = 2
 LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
-
+MODEL_PATH = r"trained_models_mlp/ppo_agent2"
+agent2 = MaskablePPO.load(MODEL_PATH)
 # Linear scheduler
 def linear_schedule(initial_value, final_value=0.0):
 
@@ -29,7 +30,7 @@ def linear_schedule(initial_value, final_value=0.0):
 
 def make_env(seed=0):
     def _init():
-        env = TicEnv(seed=seed)
+        env = TicEnv(seed=seed, agent2=agent2)
         env = ActionMasker(env, TicEnv.get_action_mask)
         env = Monitor(env)
         env.seed(seed)
@@ -78,7 +79,7 @@ def main():
         sys.stdout = log_file
 
         model.learn(
-            total_timesteps=int(100000000),
+            total_timesteps=int(100000),
             callback=[checkpoint_callback]
         )
         env.close()

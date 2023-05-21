@@ -66,20 +66,20 @@ class alpha_ai:
         return 0
 
     # 电脑下棋：-1
-    def ai_move(self):# , map):
-        # self.g_map = copy.deepcopy(map)
-        # self.cur_step == 1
-        # self.player = -1
+    def ai_move(self, map):
+        self.g_map = map
+        self.cur_step += 1
+        self.player = -1
         # 测试用时
         begin_time = time()
         # 最大最小搜索
         self.maxmin_search(9-self.cur_step)
         end_time = time()
         run_time = end_time - begin_time
-        print(run_time)
+        # print(run_time)
         # 打印递归次数
         global count_d
-        print(count_d)
+        # print(count_d)
 
         self.player = 1  # 下次人类下棋
         self.g_map[self.best_loc[0]][self.best_loc[1]] = -1

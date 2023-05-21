@@ -155,3 +155,4 @@ temp.py
 .vscode
 .idea
 __pycache__
+doc
